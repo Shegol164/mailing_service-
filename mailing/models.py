@@ -17,6 +17,7 @@ class Message(models.Model):
 
 
 class Mailing(models.Model):
+    objects = None
     STATUS_CHOICES = [
         ('created', 'Создана'),
         ('started', 'Запущена'),
