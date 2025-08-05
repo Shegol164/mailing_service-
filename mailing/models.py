@@ -41,6 +41,7 @@ class Mailing(models.Model):
 
 
 class MailingAttempt(models.Model):
+    objects = None
     STATUS_CHOICES = [
         ('success', 'Успешно'),
         ('failure', 'Не успешно'),
