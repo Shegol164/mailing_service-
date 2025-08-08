@@ -15,3 +15,7 @@ def check_mailings():
 
     for mailing in mailings:
         send_mailing.delay(mailing.id)
+
+
+def send_mailing_task():
+    return None

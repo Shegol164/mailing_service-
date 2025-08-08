@@ -15,13 +15,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from django.contrib.staticfiles.views import serve
-from django.urls import re_path
-from django.views.generic import TemplateView
+from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', TemplateView.as_view(template_name='index.html')),
-    re_path(r'^favicon\.ico$', serve, {'path': 'img/favicon.ico'}),
+    path('', include('mailing.urls')),
+    path('mailing/', include('mailing.urls')),
+    path('clients/', include('clients.urls')),
+    path('users/', include('users.urls')),
 ]
