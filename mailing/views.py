@@ -5,6 +5,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Mailing, Message, MailingAttempt
 from .tasks import send_mailing_task
 from django.db.models import Count
+from django.views.generic import TemplateView
+from mailing.models import Mailing
+from clients.models import Client
 
 
 class MailingListView(LoginRequiredMixin, ListView):
@@ -86,3 +89,47 @@ class MailingAttemptListView(LoginRequiredMixin, ListView):
         return MailingAttempt.objects.filter(
             mailing__owner=self.request.user
         ).select_related('mailing', 'mailing__message')
+
+class MessageListView(ListView):
+    model = Message
+    template_name = 'mailing/message_list.html'
+    context_object_name = 'messages'
+
+    def get_queryset(self):
+        return Message.objects.filter(owner=self.request.user)
+
+class MessageCreateView(CreateView):
+    model = Message
+    fields = ['subject', 'body']
+    template_name = 'mailing/message_form.html'
+    success_url = reverse_lazy('mailing:message_list')
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
+
+class MessageDetailView(DetailView):
+    model = Message
+    template_name = 'mailing/message_detail.html'
+    context_object_name = 'message'
+
+class MessageUpdateView(UpdateView):
+    model = Message
+    fields = ['subject', 'body']
+    template_name = 'mailing/message_form.html'
+    success_url = reverse_lazy('mailing:message_list')
+
+class MessageDeleteView(DeleteView):
+    model = Message
+    template_name = 'mailing/message_confirm_delete.html'
+    success_url = reverse_lazy('mailing:message_list')
+
+class HomeView(TemplateView):
+    template_name = 'mailing/home.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['total_mailings'] = Mailing.objects.count()
+        context['active_mailings'] = Mailing.objects.filter(status='started').count()
+        context['unique_clients'] = Client.objects.distinct().count()
+        return context
